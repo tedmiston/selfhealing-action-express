@@ -1,18 +1,12 @@
-from langchain.chains import LLMChain
-from langchain.output_parsers import StructuredOutputParser, ResponseSchema, OutputFixingParser
-from langchain.prompts import PromptTemplate, ChatPromptTemplate, HumanMessagePromptTemplate
-from langchain.chat_models import ChatOpenAI
 import os
-
 import sys
+
+from langchain.chains import LLMChain
 from langchain.chat_models import ChatOpenAI
-from langchain.prompts import (
-    PromptTemplate
-)
-from langchain.prompts.chat import (
-    ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-)
+from langchain.output_parsers import OutputFixingParser, ResponseSchema, StructuredOutputParser
+from langchain.prompts import ChatPromptTemplate, HumanMessagePromptTemplate, PromptTemplate
+from langchain.prompts.chat import ChatPromptTemplate, HumanMessagePromptTemplate
+
 
 def main(build_output_file, openai_api_key):
 
@@ -86,6 +80,7 @@ def main(build_output_file, openai_api_key):
     # Write file
     with open(filename, "w") as f:
         f.write(parsed["fixed_content"])
+
 
 if __name__ == "__main__":
     build_output_file = sys.argv[1]
