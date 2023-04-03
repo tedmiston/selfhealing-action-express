@@ -9,7 +9,6 @@ from langchain.prompts.chat import ChatPromptTemplate, HumanMessagePromptTemplat
 
 
 def main(build_output_file, openai_api_key):
-
     # Read build output
     with open(build_output_file, "r") as f:
         build_output = f.read()
@@ -26,12 +25,12 @@ def main(build_output_file, openai_api_key):
     chat_prompt_template = ChatPromptTemplate.from_messages([human_message_prompt])
     chat = ChatOpenAI(temperature=0, openai_api_key=openai_api_key)
     chain = LLMChain(llm=chat, prompt=chat_prompt_template)
-    filename = chain.run(build_output);
+    filename = chain.run(build_output)
 
     if filename == "no":
         print("No filename found")
         return
-    
+
     print("Filename found: " + filename)
 
     # Read file contents
@@ -41,7 +40,7 @@ def main(build_output_file, openai_api_key):
     # Create prompt response schema and template and run chain to return fixed code in json format
     response_schemas = [
         ResponseSchema(name="fix_found", description="boolean true false value if the fix was found or not."),
-        ResponseSchema(name="fixed_content", description="the updated contents containing the fix.")
+        ResponseSchema(name="fixed_content", description="the updated contents containing the fix."),
     ]
     output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
     format_instructions = output_parser.get_format_instructions()
@@ -50,14 +49,14 @@ def main(build_output_file, openai_api_key):
         prompt=PromptTemplate(
             template="\nPlease respond with the fixed code ONLY and no additional information. \n{format_instructions}.\n Content: {file}\n Error: {error}.",
             input_variables=["file", "error"],
-            partial_variables={"format_instructions": format_instructions}
+            partial_variables={"format_instructions": format_instructions},
         )
     )
 
     chat_prompt_template = ChatPromptTemplate.from_messages([human_message_prompt])
     chat = ChatOpenAI(temperature=0, openai_api_key=openai_api_key)
     chain = LLMChain(llm=chat, prompt=chat_prompt_template)
-    fixed_code = chain.run({'file':file_text, 'error': build_output});
+    fixed_code = chain.run({"file": file_text, "error": build_output})
 
     print(fixed_code)
 
@@ -66,7 +65,7 @@ def main(build_output_file, openai_api_key):
         parsed = output_parser.parse(fixed_code)
         print(parsed)
     except:
-        new_parser = OutputFixingParser.from_llm(parser = output_parser, llm = chat);
+        new_parser = OutputFixingParser.from_llm(parser=output_parser, llm=chat)
         parsed = new_parser.parse(fixed_code)
         print(parsed)
         return
@@ -74,7 +73,7 @@ def main(build_output_file, openai_api_key):
     if parsed["fix_found"] == "false":
         print("No fix found")
         return
-    
+
     print("Fix found: " + parsed["fixed_content"])
 
     # Write file
